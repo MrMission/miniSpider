@@ -3,6 +3,7 @@ import requests
 from redis import Redis
 import json
 import sys
+from time import sleep
 
 class Crawler:
     count = 0
@@ -34,6 +35,12 @@ class Crawler:
             # 再从url_list中取字典
             encode_dic = self.r_server.rpop('url_list')
 
+    def isEmpty(self):
+        if self.r_server.llen('url_list') == 0:
+            return True
+        else:
+            return False
+
     def _get_content(self, url):
         while 1:
             r = ''
@@ -49,7 +56,11 @@ class Crawler:
         return r.text
 
 if __name__ == "__main__":
-    #c = Crawler('gb2312', 'http://detail.zol.com.cn/notebook_index/subcate16_list_1.html')
-    c = Crawler('gb2312')
-    c.crawl()
+    seed = 'http://detail.zol.com.cn/notebook_index/subcate16_list_1.html'
+    while 1:
+        c = Crawler('gb2312', seed)
+        seed = ''
+        if c.isEmpty():
+            sleep(5)
+        c.crawl()
 

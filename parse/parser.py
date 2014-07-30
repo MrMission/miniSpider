@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from redis import Redis
 import json
 import string
+from time import sleep
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -32,8 +33,9 @@ class Parser(object):
                 # 打印错误信息
                 s = sys.exc_info()
                 print 'Error %s happened in line %d' % (s[1], s[2].tb_lineno)
-                # 如果出错要把这个信息放到error_list中
+                # 如果出错要把这个信息放到error_list中,而且要重新返回
                 self.r_server.rpush('error_list', json.dumps(dic))
+                self.r_server.rpush('crawl_list', json.dumps(dic))
             finally:
                 # 再从crawl_list中取字典
                 encode_dic = self.r_server.rpop('crawl_list')
@@ -150,9 +152,16 @@ class Parser(object):
             print dic['url'], dic['level']
             print 'Error %s happened in line %d' % (s[1], s[2].tb_lineno)
             raise
+    def isEmpty(self):
+        if self.r_server.llen('crawl_list') == 0:
+            return True
+        else:
+            return False
 
 if __name__ == "__main__":
-    p = Parser('http://detail.zol.com.cn')
-    p.parse()
+    while True:
+        p = Parser('http://detail.zol.com.cn')
+        if p.isEmpty():
+            sleep(5)
+        p.parse()
 
-           
