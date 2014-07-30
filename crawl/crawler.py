@@ -2,8 +2,10 @@
 import requests
 from redis import Redis
 import json
+import sys
 
 class Crawler:
+    count = 0
     def __init__(self, encode='utf-8', site=''):
         # 下载之前，初始化redis
         self.r_server = Redis(host = 'localhost', port = 6379, db = 0)
@@ -18,12 +20,14 @@ class Crawler:
         # 遍历url_list，进行爬取，爬取的结果放在crawl_list
         encode_dic = self.r_server.rpop('url_list')
         while encode_dic:
+            # 打印count
+            self.__class__.count += 1
+            print self.__class__.count
             # 从字典中得到url以及内容
             dic = json.loads(encode_dic)
             url = dic['url']
             # 根据url下载相应的内容,存进去也是json
             content = self._get_content(url)
-            del dic['url']
             dic['content'] = content
             encode_dic = json.dumps(dic)
             self.r_server.rpush('crawl_list', encode_dic)
@@ -35,7 +39,6 @@ class Crawler:
             r = ''
             try:
                 r = requests.get(url)
-                print r
                 r.encoding = self.encode
             except:
                 s = sys.exc_info()
@@ -46,6 +49,7 @@ class Crawler:
         return r.text
 
 if __name__ == "__main__":
-    c = Crawler('gb2312', 'http://detail.zol.com.cn/notebook_index/subcate16_list_1.html')
+    #c = Crawler('gb2312', 'http://detail.zol.com.cn/notebook_index/subcate16_list_1.html')
+    c = Crawler('gb2312')
     c.crawl()
 
