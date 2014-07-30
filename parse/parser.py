@@ -1,4 +1,5 @@
 #encoding=utf-8
+
 from bs4 import BeautifulSoup
 from redis import Redis
 import json
@@ -30,7 +31,6 @@ class Parser(object):
             except:
                 # 打印错误信息
                 s = sys.exc_info()
-                print dic['url'], dic['level']
                 print 'Error %s happened in line %d' % (s[1], s[2].tb_lineno)
                 # 如果出错要把这个信息放到error_list中
                 self.r_server.rpush('error_list', json.dumps(dic))
@@ -61,46 +61,95 @@ class Parser(object):
             s = sys.exc_info()
             print dic['url'], dic['level']
             print 'Error %s happened in line %d' % (s[1], s[2].tb_lineno)
+            raise
 
     def getSecond(self, dic):
-        content = dic['content'].decode()
-        dic['level'] = 3
-        # 解析内容，得到url存进url_list
-        soup = BeautifulSoup(content)
-        div = soup.find(class_='series-list clearfix')
-        if div:
-            subdiv = div.find(class_='all-brand-list')
-            if not subdiv:
-                subdiv = div
-            tags = subdiv.find_all('a')
-            print '----------------------------------------------'
-            print dic['url']
-            del dic['content']
-            for tag in tags:
-                dic['url'] = self.prefix + tag['href']
-                dic['second'] = tag.text
-                print dic['url'], dic['first'], dic['second']
-                encode_dic = json.dumps(dic)
-                self.r_server.rpush('url_list', encode_dic)
+        try:
+            content = dic['content'].decode()
+            dic['level'] = 3
+            # 解析内容，得到url存进url_list
+            soup = BeautifulSoup(content)
+            div = soup.find(class_='series-list clearfix')
+            if div:
+                subdiv = div.find(class_='all-brand-list')
+                if not subdiv:
+                    subdiv = div
+                tags = subdiv.find_all('a')
+                print '----------------------------------------------'
+                print dic['url']
+                del dic['content']
+                for tag in tags:
+                    dic['url'] = self.prefix + tag['href']
+                    dic['second'] = tag.text
+                    print dic['url'], dic['first'], dic['second']
+                    encode_dic = json.dumps(dic)
+                    self.r_server.rpush('url_list', encode_dic)
+        except:
+            # 打印错误信息
+            s = sys.exc_info()
+            print dic['url'], dic['level']
+            print 'Error %s happened in line %d' % (s[1], s[2].tb_lineno)
+            raise
 
     def getThird(self, dic):
-        content = dic['content'].decode()
-        dic['level'] = 4
-        # 解析内容，得到url存进url_list
-        soup = BeautifulSoup(content)
-        tag = soup.find(class_='nav')
-        href = tag.find(class_='a')['href']
-        print '----------------------------------------------Third'
-        print dic['url']
-        del dic['content']
-        dic['url'] = href
-        print dic['url']
-        encode_dic = json.dumps(dic)
-        self.r_server.rpush('url_list', encode_dic)
+        try:
+            content = dic['content'].decode()
+            dic['level'] = 4
+            # 解析内容，得到url存进url_list
+            soup = BeautifulSoup(content)
+            nav = soup.find(class_='nav')
+            tag = nav.find('a')
+            # 删除content，把配置这个页面的url得到
+            del dic['content']
+            dic['url'] = self.prefix + tag['href']
+            print dic['url'], dic['first'], dic['second']
+            # 把url存入url_list
+            encode_dic = json.dumps(dic)
+            self.r_server.rpush('url_list', encode_dic)
+        except:
+            # 打印错误信息
+            s = sys.exc_info()
+            print dic['url'], dic['level']
+            print 'Error %s happened in line %d' % (s[1], s[2].tb_lineno)
+            raise
 
     def getWord(self, dic):
-        pass
-
+        try:
+            content = dic['content'].decode()
+            dic['level'] = 5
+            # 解析内容，得到url存进url_list
+            soup = BeautifulSoup(content)
+            table = soup.find(id="seriesParamTableBox")
+            # 这里只是计数，没其他用途
+            print dic['url'], dic['first'], dic['second']
+            del dic['content']
+            target = ['型号', '产品定位', 'CPU系列', 'CPU型号', '核心/线程数', '内存容量', '硬盘容量', '屏幕尺寸', '屏幕分辨率', '显卡类型', '显存容量']
+            temp_dic = {}
+            num = int(table.find('table')['class'][1].split('_')[1])
+            for item in target:
+                c = ['' for i in range(num)]
+                raw_c = table.find(text=item)
+                if raw_c:
+                    p = raw_c.findParents('tr')
+                    c = p[0].find_all('td')
+                temp_dic[item] = c
+            for i in range(num):
+                result = []
+                for j in range(len(target)):
+                    if temp_dic[target[j]][i] == '':
+                        result.append('')
+                    else:
+                        result.append(temp_dic[target[j]][i].text)
+                # 把result存入url_list
+                dic['result'] = result
+                encode_dic = json.dumps(dic)
+                self.r_server.rpush('result_list', encode_dic)
+        except:
+            # 打印错误信息
+            s = sys.exc_info()
+            print dic['url'], dic['level']
+            print 'Error %s happened in line %d' % (s[1], s[2].tb_lineno)
+            raise
 
 if __name__ == "__main__":
     p = Parser('http://detail.zol.com.cn')
