@@ -56,7 +56,11 @@ class Crawler:
         return r.text
 
 if __name__ == "__main__":
-    seed = 'http://detail.zol.com.cn/notebook_index/subcate16_list_1.html'
+    #seed = 'http://detail.zol.com.cn/notebook_index/subcate16_list_1.html'
+    #seed = 'http://detail.zol.com.cn/ultrabook/'
+    #seed = 'http://detail.zol.com.cn/netbook/'
+    seed = sys.argv[1]
+
     while 1:
         c = Crawler('gb2312', seed)
         seed = ''

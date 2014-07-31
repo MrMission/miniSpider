@@ -10,9 +10,10 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 class Parser(object):
-    def __init__(self, prefix='', site=''):
+    def __init__(self, prefix, name, site=''):
         self.r_server = Redis(host = 'localhost', port = 6379, db = 0)
         self.prefix = prefix
+        self.name = name
 
     def parse(self):
         #encode_dic = self.r_server.rpop('crawl_list')
@@ -22,13 +23,19 @@ class Parser(object):
                 # 从字典中得到内容以及level
                 dic = json.loads(encode_dic)
                 if dic['level'] == 1:
-                    self.getFirst(dic)
+                    # Note 
+                    #self.getFirst(dic)
+                    self.getFirst1(dic)
                 elif dic['level'] == 2:
-                    self.getSecond(dic)
+                    pass
+                    #self.getSecond(dic)
+                    self.getSecond1(dic)
                 elif dic['level'] == 3:
-                    self.getThird(dic)
+                    pass
+                    #self.getThird(dic)
                 elif dic['level'] == 4:
-                    self.getWord(dic)
+                    pass
+                    #self.getWord(dic)
             except:
                 # 打印错误信息
                 s = sys.exc_info()
@@ -50,6 +57,29 @@ class Parser(object):
             # 解析内容，得到url存进url_list
             soup = BeautifulSoup(content)
             div = soup.find(class_='all-item manuSwitch')
+            tags = div.find_all('a')
+            del dic['content']
+            for tag in tags:
+                dic['url'] = self.prefix + tag['href']
+                dic['first'] = tag.text
+                print dic['url'], dic['first']
+                encode_dic = json.dumps(dic)
+                self.r_server.rpush('url_list', encode_dic)
+        except:
+            # 打印错误信息
+            s = sys.exc_info()
+            print dic['url'], dic['level']
+            print 'Error %s happened in line %d' % (s[1], s[2].tb_lineno)
+            raise
+
+    def getFirst1(self, dic):
+        try:
+            content = dic['content']
+            content = content.decode()
+            dic['level'] = 2
+            # 解析内容，得到url存进url_list
+            soup = BeautifulSoup(content)
+            div = soup.find(class_='brand-sel-box clearfix')
             tags = div.find_all('a')
             del dic['content']
             for tag in tags:
@@ -92,6 +122,32 @@ class Parser(object):
             print dic['url'], dic['level']
             print 'Error %s happened in line %d' % (s[1], s[2].tb_lineno)
             raise
+
+    def getSecond1(self, dic):
+        try:
+            content = dic['content'].decode()
+            # 解析内容，得到url存进url_list
+            soup = BeautifulSoup(content)
+            div = soup.find(class_='series-list clearfix')
+            if div:
+                subdiv = div.find(class_='all-brand-list')
+                if not subdiv:
+                    subdiv = div
+                tags = subdiv.find_all('a')
+                print '----------------------------------------------'
+                print dic['url']
+                del dic['content']
+                for tag in tags:
+                    dic['url'] = self.prefix + tag['href']
+                    dic['second'] = tag.text
+                    print dic['url'], dic['first'], dic['second']
+                    encode_dic = json.dumps(dic)
+                    self.r_server.rpush(self.name + '_list', encode_dic)
+        except:
+            # 打印错误信息
+            s = sys.exc_info()
+            print dic['url'], dic['level']
+            print 'Error %s happened in line %d' % (s[1], s[2].tb_lineno)
 
     def getThird(self, dic):
         try:
@@ -145,7 +201,7 @@ class Parser(object):
                 # 把result存入url_list
                 dic['result'] = result
                 encode_dic = json.dumps(dic)
-                self.r_server.rpush('result_list', encode_dic)
+                self.r_server.rpush(self.name + '_list', encode_dic)
         except:
             # 打印错误信息
             s = sys.exc_info()
@@ -159,8 +215,9 @@ class Parser(object):
             return False
 
 if __name__ == "__main__":
+    name = sys.argv[1]
     while True:
-        p = Parser('http://detail.zol.com.cn')
+        p = Parser('http://detail.zol.com.cn', name)
         if p.isEmpty():
             sleep(5)
         p.parse()
