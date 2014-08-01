@@ -1,9 +1,10 @@
 #encoding=utf-8
-import requests
+
 from redis import Redis
+from time import sleep
+import requests
 import json
 import sys
-from time import sleep
 
 class Crawler:
     count = 0
@@ -19,7 +20,8 @@ class Crawler:
 
     def crawl(self):
         # 遍历url_list，进行爬取，爬取的结果放在crawl_list
-        encode_dic = self.r_server.rpop('url_list')
+        # 修改了下代码，保证队列的性质，从尾部插入，从头部弹出
+        encode_dic = self.r_server.lpop('url_list')
         while encode_dic:
             # 打印count
             self.__class__.count += 1
@@ -33,7 +35,7 @@ class Crawler:
             encode_dic = json.dumps(dic)
             self.r_server.rpush('crawl_list', encode_dic)
             # 再从url_list中取字典
-            encode_dic = self.r_server.rpop('url_list')
+            encode_dic = self.r_server.lpop('url_list')
 
     def isEmpty(self):
         if self.r_server.llen('url_list') == 0:
@@ -56,12 +58,11 @@ class Crawler:
         return r.text
 
 if __name__ == "__main__":
-    #seed = 'http://detail.zol.com.cn/notebook_index/subcate16_list_1.html'
-    #seed = 'http://detail.zol.com.cn/ultrabook/'
-    #seed = 'http://detail.zol.com.cn/netbook/'
-    seed = sys.argv[1]
-
-    while 1:
+    if len(sys.avgv) == 2:
+        seed = sys.argv[1]
+    else:
+        seed = ''
+    while True:
         c = Crawler('gb2312', seed)
         seed = ''
         if c.isEmpty():
