@@ -58,7 +58,7 @@ class Crawler:
         return r.text
 
 if __name__ == "__main__":
-    if len(sys.avgv) == 2:
+    if len(sys.argv) == 2:
         seed = sys.argv[1]
     else:
         seed = ''

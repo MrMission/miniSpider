@@ -11,7 +11,7 @@ class storge:
         self.name = name
 
     def store(self):
-        f = open('/home/Administrator/miniSpider/data/computer.txt', 'w')
+        f = open('/home/Administrator/miniSpider/data/' + self.name + '.txt', 'w')
         for item in self.r_server.lrange(self.name + '_list', 0, -1):
             result = []
             dic = json.loads(item)
@@ -42,7 +42,8 @@ if __name__ == '__main__':
     is_save = False
     while True:
         if s.is_finish():
-            s.store_keyword()
+            #s.store_keyword()
+            s.store()
             is_save = True
         if is_save:
             break
