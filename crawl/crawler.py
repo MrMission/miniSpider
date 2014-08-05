@@ -53,6 +53,7 @@ class Crawler:
                 s = sys.exc_info()
                 print url
                 print 'Error %s happened in line %d' % (s[1], s[2].tb_lineno)
+                sleep(5)
             if r != '':
                 break
         return r.text

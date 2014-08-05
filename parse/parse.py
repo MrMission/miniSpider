@@ -31,15 +31,13 @@ class Parser(object):
 
     def parse(self):
         encode_dic = self.r_server.lpop('crawl_list')
-        print "parse:: parser---------------"
         while encode_dic:
             try:
                 # 从字典中得到内容以及level
                 dic = json.loads(encode_dic)
                 if self.control.has_key(str(dic['level'])):
-                    print dic['level']
-                    func = eval(self.control[dic['level']])
-                    func()
+                    func = eval("self." + self.control[str(dic['level'])])
+                    func(dic)
                     pass
             except:
                 # 打印错误信息
@@ -51,6 +49,26 @@ class Parser(object):
             finally:
                 # 再从crawl_list中取字典
                 encode_dic = self.r_server.lpop('crawl_list')
+    def getFirst(self, dic):
+        pass
+
+    def getFirst1(self, dic):
+        pass
+
+    def getSecond(self, dic):
+        pass
+
+    def getSecond1(self, dic):
+        pass
+
+    def getThird(self, dic):
+        pass
+
+    def getThird1(self, dic):
+        pass
+
+    def getThird2(self, dic):
+        pass
 
     def isEmpty(self):
         if self.r_server.llen('crawl_list') == 0:

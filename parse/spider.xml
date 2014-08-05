@@ -1,9 +1,13 @@
 <parser>
     <level>1</level>
-    <function>getFirst</function>
+    <function>getFirst1</function>
 </parser>
 <parser>
     <level>2</level>
     <function>getSecond1</function>
+</parser>
+<parser>
+    <level>3</level>
+    <function>getThird2</function>
 </parser>
 

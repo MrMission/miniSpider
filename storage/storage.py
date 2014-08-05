@@ -26,7 +26,7 @@ class storge:
         f = open('/home/Administrator/miniSpider/data/' + self.name + '.txt', 'w')
         for item in self.r_server.lrange(self.name + '_list', 0, -1):
             dic = json.loads(item)
-            f.write(dic['first'] + ',' +  dic['second'] + '\n')
+            f.write(dic['first'] + ',' +  dic['second'] + ',' + dic['name'] + '\n')
         f.close()
 
     def is_finish(self):
@@ -37,13 +37,17 @@ class storge:
 
 if __name__ == '__main__':
     #name = 'netbook'
-    name = sys.argv[1]
+    if len(sys.argv) == 2:
+        name = sys.argv[1]
+    else:
+        print "Take Care, you'd better to add file's name, now your file's name is result."
+        name = "result"
     s = storge(name)
     is_save = False
     while True:
         if s.is_finish():
-            #s.store_keyword()
-            s.store()
+            s.store_keyword()
+            #s.store()
             is_save = True
         if is_save:
             break
