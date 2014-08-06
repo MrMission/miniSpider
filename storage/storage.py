@@ -22,11 +22,20 @@ class storge:
             f.write(','.join(result) + '\n')
         f.close()
 
+    def store_mengqi(self):
+        f = open('/home/Administrator/miniSpider/data/' + self.name + '.txt', 'w')
+        for item in self.r_server.lrange(self.name + '_list', 0, -1):
+            result = []
+            dic = json.loads(item)
+            result += dic['result']
+            f.write(','.join(result) + '\n')
+        f.close()
+
     def store_keyword(self):
         f = open('/home/Administrator/miniSpider/data/' + self.name + '.txt', 'w')
         for item in self.r_server.lrange(self.name + '_list', 0, -1):
             dic = json.loads(item)
-            f.write(dic['first'] + ',' +  dic['second'] + ',' + dic['name'] + '\n')
+            f.write(dic['first'] + ',' +  dic['second'] + ',' + dic['result'][0] + '\n')
         f.close()
 
     def is_finish(self):
@@ -48,6 +57,7 @@ if __name__ == '__main__':
         if s.is_finish():
             s.store_keyword()
             #s.store()
+            #s.store_mengqi()
             is_save = True
         if is_save:
             break

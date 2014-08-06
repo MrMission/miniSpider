@@ -42,10 +42,10 @@ class Parser(object):
             except:
                 # 打印错误信息
                 s = sys.exc_info()
-                print 'Error %s happened in line %d' % (s[1], s[2].tb_lineno)
+                print 'Error %s happened in line %d in %s' % (s[1], s[2].tb_lineno, s[0])
                 # 出错要把该信息放到error_list,且要重新放回到crawl_list
                 self.r_server.rpush('error_list', json.dumps(dic))
-                self.r_server.rpush('crawl_list', json.dumps(dic))
+                #self.r_server.rpush('crawl_list', json.dumps(dic))
             finally:
                 # 再从crawl_list中取字典
                 encode_dic = self.r_server.lpop('crawl_list')
@@ -70,6 +70,9 @@ class Parser(object):
     def getThird2(self, dic):
         pass
 
+    def getWord(self, dic):
+        pass
+
     def isEmpty(self):
         if self.r_server.llen('crawl_list') == 0:
             return True
@@ -83,4 +86,3 @@ if __name__ == "__main__":
         if p.isEmpty():
             sleep(5)
         p.parse()
-

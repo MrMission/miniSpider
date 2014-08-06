@@ -1,13 +1,17 @@
 <parser>
     <level>1</level>
-    <function>getFirst1</function>
+    <function>getFirst</function>
 </parser>
 <parser>
     <level>2</level>
-    <function>getSecond1</function>
+    <function>getSecond</function>
 </parser>
 <parser>
     <level>3</level>
-    <function>getThird2</function>
+    <function>getThird</function>
+</parser>
+<parser>
+    <level>4</level>
+    <function>getWord</function>
 </parser>
 

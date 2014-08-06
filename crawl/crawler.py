@@ -10,7 +10,7 @@ class Crawler:
     count = 0
     def __init__(self, encode='utf-8', site=''):
         # 下载之前，初始化redis
-        self.r_server = Redis(host = 'localhost', port = 6379, db = 0)
+        self.r_server = Redis()
         if site != '':
             level = 1
             dic = {'url': site, 'level': level}
