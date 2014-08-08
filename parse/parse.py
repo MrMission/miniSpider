@@ -1,15 +1,14 @@
-#encoding=utf-8
-
 from bs4 import BeautifulSoup
 from redis import Redis
 from time import sleep
 import string
 import json
 import sys
+from imp import reload
 reload(sys)
-sys.setdefaultencoding('utf-8')
+#sys.setdefaultencoding('utf-8')
 
-class Parser(object):
+class Parser():
     def configure(self):
         file = open('/home/Administrator/minispider/parse/spider.xml', 'r')
         content_list = file.readlines()
@@ -27,22 +26,22 @@ class Parser(object):
         self.name = name
         self.control = {}
         self.configure()
-        print self.control
+        print(self.control)
 
     def parse(self):
         encode_dic = self.r_server.lpop('crawl_list')
         while encode_dic:
             try:
                 # 从字典中得到内容以及level
-                dic = json.loads(encode_dic)
-                if self.control.has_key(str(dic['level'])):
+                dic = json.loads(encode_dic.decode())
+                if str(dic['level']) in self.control:
                     func = eval("self." + self.control[str(dic['level'])])
                     func(dic)
                     pass
             except:
                 # 打印错误信息
                 s = sys.exc_info()
-                print 'Error %s happened in line %d in %s' % (s[1], s[2].tb_lineno, s[0])
+                print('Error %s happened in line %d in %s' % (s[1], s[2].tb_lineno, s[0]))
                 # 出错要把该信息放到error_list,且要重新放回到crawl_list
                 self.r_server.rpush('error_list', json.dumps(dic))
                 #self.r_server.rpush('crawl_list', json.dumps(dic))

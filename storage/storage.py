@@ -1,4 +1,3 @@
-#encoding=utf-8
 from redis import Redis
 import json
 import sys

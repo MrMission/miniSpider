@@ -1,17 +1,22 @@
-<parser>
-    <level>1</level>
-    <function>getFirst</function>
-</parser>
-<parser>
-    <level>2</level>
-    <function>getSecond</function>
-</parser>
-<parser>
-    <level>3</level>
-    <function>getThird</function>
-</parser>
-<parser>
-    <level>4</level>
-    <function>getWord</function>
-</parser>
-
+<xml>
+    <parser>
+        <level>1</level>
+        <function>getFirst</function>
+    </parser>
+    <parser>
+        <level>2</level>
+        <function>getSecond</function>
+    </parser>
+    <parser>
+        <level>3</level>
+        <function>getThird</function>
+    </parser>
+    <parser>
+        <level>4</level>
+        <function>getWord</function>
+    </parser>
+    <seed>
+        <url>http://detail.zol.com.cn/mini-desktop_pc/</url>
+        <encode>utf-8</encode>
+    </seed>
+</xml>
