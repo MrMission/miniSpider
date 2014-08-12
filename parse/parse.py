@@ -6,9 +6,9 @@ import json
 import sys
 from imp import reload
 reload(sys)
-#sys.setdefaultencoding('utf-8')
 
 class Parser():
+    # 即从配置文件中读取东西，存入control中
     def configure(self):
         file = open('/home/Administrator/minispider/parse/spider.xml', 'r')
         content_list = file.readlines()
@@ -19,21 +19,21 @@ class Parser():
             level = tag.find('level').text
             function = tag.find('function').text
             self.control[level] = function
-    
+
+    # 设置好redis，前缀，名字，以及得到配置文件
     def __init__(self, prefix, name, site=''):
-        self.r_server = Redis(host = 'localhost', port = 6379, db = 0)
+        self.r_server = Redis()
         self.prefix = prefix
         self.name = name
         self.control = {}
         self.configure()
+        print("初始化配置...")
         print(self.control)
 
     def parse(self):
-        encode_dic = self.r_server.lpop('crawl_list')
-        while encode_dic:
+        while True:
             try:
-                # 从字典中得到内容以及level
-                dic = json.loads(encode_dic.decode())
+                dic = json.loads(self.r_server.blpop('crawl_list')[1].decode())
                 if str(dic['level']) in self.control:
                     func = eval("self." + self.control[str(dic['level'])])
                     func(dic)
@@ -49,27 +49,22 @@ class Parser():
                 # 再从crawl_list中取字典
                 encode_dic = self.r_server.lpop('crawl_list')
     def getFirst(self, dic):
-        pass
-
-    def getFirst1(self, dic):
+        print('getFirst')
         pass
 
     def getSecond(self, dic):
-        pass
-
-    def getSecond1(self, dic):
+        print('getSecond')
         pass
 
     def getThird(self, dic):
-        pass
-
-    def getThird1(self, dic):
+        print('getThird')
         pass
 
     def getThird2(self, dic):
         pass
 
     def getWord(self, dic):
+        print('getWord')
         pass
 
     def isEmpty(self):
@@ -79,9 +74,9 @@ class Parser():
             return False
 
 if __name__ == "__main__":
-    name = sys.argv[1]
-    while True:
-        p = Parser('http://detail.zol.com.cn', name)
-        if p.isEmpty():
-            sleep(5)
-        p.parse()
+    if (len(sys.argv) == 2):
+        name = sys.argv[1]
+    else:
+        name = 'res'
+    p = Parser('http://detail.zol.com.cn', name)
+    p.parse()

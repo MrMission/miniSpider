@@ -16,7 +16,7 @@
         <function>getWord</function>
     </parser>
     <seed>
-        <url>http://detail.zol.com.cn/mini-desktop_pc/</url>
-        <encode>utf-8</encode>
+        <url>http://detail.zol.com.cn/desktop_pc/</url>
+        <encode>gb2312</encode>
     </seed>
 </xml>

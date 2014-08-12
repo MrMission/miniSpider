@@ -2,11 +2,12 @@ from redis import Redis
 import json
 import sys
 from time import sleep
+from imp import reload
 reload(sys)
-sys.setdefaultencoding('utf-8')
+
 class storge:
     def __init__(self, name):
-        self.r_server = Redis(host = 'localhost', port = 6379, db = 0)
+        self.r_server = Redis()
         self.name = name
 
     def store(self):
@@ -17,7 +18,7 @@ class storge:
             result.append(dic['first'])
             result.append(dic['second'])
             result += dic['result']
-            print result
+            print(result)
             f.write(','.join(result) + '\n')
         f.close()
 
@@ -48,19 +49,9 @@ if __name__ == '__main__':
     if len(sys.argv) == 2:
         name = sys.argv[1]
     else:
-        print "Take Care, you'd better to add file's name, now your file's name is result."
+        print("Take Care, you'd better to add file's name, now your file's name is result.")
         name = "result"
     s = storge(name)
-    is_save = False
-    while True:
-        if s.is_finish():
-            s.store_keyword()
-            #s.store()
-            #s.store_mengqi()
-            is_save = True
-        if is_save:
-            break
-        sleep(5)
-        #s.store()
-    
+    if s.is_finish():
+        s.store_keyword()
         
