@@ -10,7 +10,7 @@ reload(sys)
 class Parser():
     # 即从配置文件中读取东西，存入control中
     def configure(self):
-        file = open('/home/Administrator/minispider/parse/spider.xml', 'r')
+        file = open('./parse/spider.xml', 'r')
         content_list = file.readlines()
         content = ''.join(content_list)
         soup = BeautifulSoup(content)

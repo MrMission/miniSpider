@@ -43,11 +43,11 @@ class taobao(Parser):
             propertyList = en_dic['propertyList']
 
             llist = []
-            for property in propertyList:
+            for property in propertyList[2: ]:
                 name = property['name']
                 subList = property['propertyList']
                 t_list = []
-                for sub_pro in subList[2: ]:
+                for sub_pro in subList:
                     t_list.append(sub_pro['name'])
                     #print(sub_pro['name'], end=',')
                 #print()

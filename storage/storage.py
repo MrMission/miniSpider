@@ -11,20 +11,21 @@ class storge:
         self.name = name
 
     def store(self):
-        f = open('/home/Administrator/miniSpider/data/' + self.name + '.txt', 'w')
+        f = open('./data/' + self.name + '.txt', 'w')
         for item in self.r_server.lrange(self.name + '_list', 0, -1):
             result = []
             dic = json.loads(item.decode())
             result.append(dic['first'])
             result.append(dic['second'])
+            if dic['result'] == []:
+                continue
             result += dic['result']
             print(dic['result'])
-            print(type(result))
             f.write(','.join(result) + '\n')
         f.close()
 
     def store_mengqi(self):
-        f = open('/home/Administrator/miniSpider/data/' + self.name + '.txt', 'w')
+        f = open('./data/' + self.name + '.txt', 'w')
         for item in self.r_server.lrange(self.name + '_list', 0, -1):
             result = []
             dic = json.loads(item)
@@ -33,7 +34,7 @@ class storge:
         f.close()
 
     def store_keyword(self):
-        f = open('/home/Administrator/miniSpider/data/' + self.name + '.txt', 'w')
+        f = open('./data/' + self.name + '.txt', 'w')
         for item in self.r_server.lrange(self.name + '_list', 0, -1):
             dic = json.loads(item)
             f.write(dic['first'] + ',' +  dic['second'] + ',' + dic['result'][0] + '\n')
