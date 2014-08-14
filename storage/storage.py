@@ -14,11 +14,12 @@ class storge:
         f = open('/home/Administrator/miniSpider/data/' + self.name + '.txt', 'w')
         for item in self.r_server.lrange(self.name + '_list', 0, -1):
             result = []
-            dic = json.loads(item)
+            dic = json.loads(item.decode())
             result.append(dic['first'])
             result.append(dic['second'])
             result += dic['result']
-            print(result)
+            print(dic['result'])
+            print(type(result))
             f.write(','.join(result) + '\n')
         f.close()
 
@@ -53,5 +54,5 @@ if __name__ == '__main__':
         name = "result"
     s = storge(name)
     if s.is_finish():
-        s.store_keyword()
+        s.store()
         

@@ -3,6 +3,7 @@ from time import sleep
 import requests
 import json
 import sys
+from time import sleep
 
 class Crawler:
     # 全局变量来设定
@@ -13,17 +14,28 @@ class Crawler:
 
     def pullCrawlRequest(self):
         return json.loads(self.r_server.blpop('url_list')[1].decode())
+        '''
+        while True:
+            if not self.r_server.lpop('url_list'):
+                return json.loads(self.r_server.lpop('url_list').decode())
+            else:
+                sleep(5)
+        '''
 
-    def pushParserRequest(self, url, content, level):
-        self.r_server.rpush('crawl_list', json.dumps({'url': url, 'content': content, 'level': level}))
+    def pushParserRequest(self, dic):
+        self.r_server.rpush('crawl_list', json.dumps(dic))
 
     def crawl(self):
         while True:
             # 从redis中取出要爬的url等信息
             dic = self.pullCrawlRequest()
+
             # 爬下来，然后放到redis中
             content = self._get_content(dic['url'], dic['encode'])
-            self.pushParserRequest(dic['url'], content, dic['level'])
+            del dic['url']
+            dic['content'] = content
+            self.pushParserRequest(dic)
+            
             # 打印count
             self.__class__.count += 1
             print(self.__class__.count)

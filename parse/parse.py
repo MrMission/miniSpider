@@ -21,7 +21,7 @@ class Parser():
             self.control[level] = function
 
     # 设置好redis，前缀，名字，以及得到配置文件
-    def __init__(self, prefix, name, site=''):
+    def __init__(self, name='result', prefix='prefix', site=''):
         self.r_server = Redis()
         self.prefix = prefix
         self.name = name
@@ -30,24 +30,31 @@ class Parser():
         print("初始化配置...")
         print(self.control)
 
+    def pullCrawlRequest(self):
+        return json.loads(self.r_server.blpop('crawl_list')[1].decode())
+
+    def push(self, dic, name):
+        self.r_server.rpush(name + '_list', json.dumps(dic))
+
     def parse(self):
         while True:
             try:
-                dic = json.loads(self.r_server.blpop('crawl_list')[1].decode())
+                dic = self.pullCrawlRequest()
                 if str(dic['level']) in self.control:
                     func = eval("self." + self.control[str(dic['level'])])
                     func(dic)
                     pass
             except:
                 # 打印错误信息
-                s = sys.exc_info()
-                print('Error %s happened in line %d in %s' % (s[1], s[2].tb_lineno, s[0]))
+                #s = sys.exc_info()
+                #print('Error %s happened in line %d in %s' % (s[1], s[2].tb_lineno, s[0]))
                 # 出错要把该信息放到error_list,且要重新放回到crawl_list
                 self.r_server.rpush('error_list', json.dumps(dic))
                 #self.r_server.rpush('crawl_list', json.dumps(dic))
             finally:
                 # 再从crawl_list中取字典
                 encode_dic = self.r_server.lpop('crawl_list')
+
     def getFirst(self, dic):
         print('getFirst')
         pass
@@ -78,5 +85,6 @@ if __name__ == "__main__":
         name = sys.argv[1]
     else:
         name = 'res'
-    p = Parser('http://detail.zol.com.cn', name)
+    p = Parser(name, 'http://detail.zol.com.cn')
     p.parse()
+
